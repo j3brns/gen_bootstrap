@@ -1,0 +1,117 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+.env
+.env.*
+.vscode/
+!*.code-workspace
+*.log
+*.sublime-project
+*.sublime-workspace
+
+# Poetry
+.poetry/
+poetry.lock  # Keep this if you want to track exact dependencies, remove if not
+
+# Jupyter Notebooks
+# Exclude notebook outputs to avoid large diffs and conflicts
+# nbstripout pre-commit hook handles this automatically, but excluding outputs here is a fallback
+*.ipynb
+!notebooks/*.ipynb # Include the notebooks themselves, but exclude outputs
+
+# Byte-code files
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.search.json
+*.dist-info/
+
+# Unit test / coverage reports
+.coverage
+.coverage.*
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.po
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS generated files
+.DS_Store
+.localized
+
+# Thumbs.db
+Thumbs.db
+
+# Windows image file caches
+ehthumbs.db
+ehthumbs_vista.db
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN
+
+# Desktop Services Store
+.DS_Store
+Desktop.ini
+
+# Cloud specific
+# GCP related files that might be generated locally
+.gcloud/
+.config/gcloud/
+
+# Weave related files (if using local Weave server)
+.weave/
+weave.sqlite
+
+# Evaluation results (can be large, often not tracked)
+evaluation/results/
+
+# Secrets or sensitive files (should NOT be committed)
+# Add patterns for any files containing secrets not managed by Secret Manager
+# e.g., *.env, credentials.json
