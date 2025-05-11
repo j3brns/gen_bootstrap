@@ -2,8 +2,7 @@
 
 import json
 import logging
-
-# import os # Used in commented out trace section
+import os  # Ensure os is imported for getenv
 
 # Configure basic structured logging
 
@@ -48,15 +47,20 @@ class CloudLoggingFormatter(logging.Formatter):
             # e.g., trace, span_id, labels, insertId
         }
 
-        # Add trace and span_id if available (will be integrated in Beta phase)
-        # trace_id = getattr(record, 'trace_id', None)
-        # span_id = getattr(record, 'span_id', None)
-        # if trace_id:
-        #     log_entry['logging.googleapis.com/trace'] = (
-        #         f"projects/{os.getenv('GCP_PROJECT_ID')}/traces/{trace_id}"
-        #     )
-        # if span_id:
-        #     log_entry['logging.googleapis.com/spanId'] = span_id
+        # Add trace and span_id if available
+        trace_id = getattr(record, "trace_id", None)
+        span_id = getattr(record, "span_id", None)
+        gcp_project_id = os.getenv("GCP_PROJECT_ID")  # Get project ID for trace path
+
+        if trace_id and gcp_project_id:
+            log_entry[
+                "logging.googleapis.com/trace"
+            ] = f"projects/{gcp_project_id}/traces/{trace_id}"
+        elif trace_id:  # If project_id is not available, log trace_id without full path
+            log_entry["trace_id"] = trace_id
+
+        if span_id:
+            log_entry["logging.googleapis.com/spanId"] = span_id
 
         # Add any extra attributes attached to the log record
         if hasattr(record, "__dict__"):

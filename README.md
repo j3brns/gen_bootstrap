@@ -130,13 +130,16 @@ It aims to provide a well-structured project foundation, integrate `google-adk` 
 
 ## Roadmap
 
-The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation) are also in progress.
+The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation and initial monitoring CLI commands) are also in progress.
 
-**Next planned features:**
-* Enhanced integration with Cloud Trace
-* CLI command for running tests (`gen-bootstrap test`)
-* Monitoring and evaluation capabilities
-* Memory and state management for stateful agents
+**Progress and Next Steps:**
+The project is actively in the Beta phase, with many core features implemented, and Gamma phase development has commenced.
+Key areas currently in progress or planned next include:
+*   Finalizing Cloud Trace integration (Beta phase).
+*   Completing the `gen-bootstrap monitoring dashboard` and `gen-bootstrap monitoring alerts` commands (Gamma phase).
+*   Developing the Evaluation Framework, including the `gen-bootstrap evaluate` command (Gamma phase).
+*   Implementing Memory and State Management capabilities for stateful agents (Gamma phase).
+*   Further expanding test coverage across all components.
 
 For a comprehensive view of our development plan and progress, please see the [Detailed Project Plan](docs/plan/detailed_plan.md).
 

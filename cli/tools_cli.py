@@ -20,65 +20,11 @@ def list_tools():
     """
     Lists available agent tools from the tools/ directory.
     """
-    discovered_tools = []
     if not os.path.exists(TOOLS_DIR) or not os.path.isdir(TOOLS_DIR):
         typer.secho(f"Tools directory '{TOOLS_DIR}' not found.", fg=typer.colors.RED)
         raise typer.Exit(code=1)
 
-    # Add TOOLS_DIR to sys.path to allow direct import of modules within it
-    # This is important if tools import other local modules within TOOLS_DIR
-    # or if the modules are not part of a formally installed package.
-    original_sys_path = list(sys.path)
-    if TOOLS_DIR not in sys.path:
-        sys.path.insert(0, TOOLS_DIR)
-    # Also add the parent of TOOLS_DIR if TOOLS_DIR is a relative path like "tools"
-    # This helps if tools are imported like `from tools.some_module import ...`
-    # from within the tools directory itself, or from the main app.
-    # However, for direct module loading from TOOLS_DIR, just TOOLS_DIR in path is key.
-    # For a flat structure where TOOLS_DIR is 'tools', its parent is the project root.
-    # If TOOLS_DIR was absolute, its parent might also be relevant.
-    # For simplicity, we assume tools are in a top-level 'tools' dir relative to project root.
-    # The project root should already be in sys.path when run via `poetry run`.
-
-    for filename in os.listdir(TOOLS_DIR):
-        if filename.endswith(".py") and filename != "__init__.py":
-            module_name = filename[:-3]
-            module_path = os.path.join(TOOLS_DIR, filename)
-
-            try:
-                # Dynamically import the module
-                # Using importlib.util for more control
-                spec = importlib.util.spec_from_file_location(
-                    f"tools.{module_name}", module_path
-                )
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    # Add to sys.modules BEFORE exec_module to handle circular imports within tools
-                    # sys.modules[f"tools.{module_name}"] = module # This might be too aggressive
-                    spec.loader.exec_module(module)
-                else:
-                    typer.secho(
-                        f"Warning: Could not load module spec for {filename}",
-                        fg=typer.colors.YELLOW,
-                    )
-                    continue
-
-                for name, obj in inspect.getmembers(module):
-                    if isinstance(obj, FunctionTool):
-                        discovered_tools.append(obj)
-            except ImportError as e:
-                typer.secho(
-                    f"Warning: Could not import module {filename}: {e}",
-                    fg=typer.colors.YELLOW,
-                )
-            except Exception as e:
-                typer.secho(
-                    f"Warning: Error inspecting module {filename}: {e}",
-                    fg=typer.colors.YELLOW,
-                )
-
-    # Restore original sys.path
-    sys.path = original_sys_path
+    discovered_tools = _discover_tools(TOOLS_DIR)
 
     if not discovered_tools:
         typer.echo(f"No tools found in '{TOOLS_DIR}'.")
@@ -102,7 +48,8 @@ def _discover_tools(tools_dir_path: str) -> list[FunctionTool]:
     original_sys_path = list(sys.path)
     # Add tools_dir_path to sys.path to allow direct import of modules within it
     # This is simplified; for robustness, consider if tools_dir_path is already in sys.path
-    # or if it's relative and needs to be made absolute.
+    # or if it's relative and needs to be made
+    # absolute.
     # For modules directly in tools_dir_path (e.g. tools_dir_path/my_tool.py),
     # their parent dir (tools_dir_path) needs to be in path for `from my_tool import...`
     # if they are not installed packages.
@@ -135,7 +82,8 @@ def _discover_tools(tools_dir_path: str) -> list[FunctionTool]:
             module_file_path = os.path.join(tools_dir_path, filename)
 
             # Construct a unique module name for importlib to avoid collisions
-            # This could be based on the path or a fixed prefix if tools_dir_path is standard.
+            # This could be based on the path or a fixed prefix
+            # if tools_dir_path is standard.
             # For instance, if tools_dir_path is "tools", then "tools.mock_tool_module"
             # If tools_dir_path is temporary, like in tests, need a stable way.
             # Let's use a fixed prefix for dynamically loaded tool modules.
@@ -185,7 +133,10 @@ def _discover_tools(tools_dir_path: str) -> list[FunctionTool]:
 
 @app.command("describe")
 def describe_tool(
-    tool_name: str = typer.Argument(..., help="The name of the tool to describe.")
+    tool_name: str = typer.Argument(
+        ...,
+        help="The name of the tool to describe.",
+    )
 ):
     """
     Shows detailed information (description, parameters, docstring) for a specified tool.

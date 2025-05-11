@@ -2,7 +2,7 @@
 name = "gen-bootstrap"
 version = "0.1.0"
 description = "A scaffold and CLI for generative AI projects using the Google ADK on GCP."
-authors = ["Your Name <you@example.com>"]
+authors = ["J3brns <julian.burns50+j3brns@gmail.com>"]
 readme = "README.md"
 
 packages = [
@@ -21,21 +21,19 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-google-cloud-aiplatform = "^1.49.0" # Attempting to update to a recent version
-google-cloud-logging = "^3.8.0" # Or the latest compatible version
-google-cloud-trace = "^1.10.0" # Or the latest compatible version
-google-cloud-secret-manager = "^2.16.2" # Or the latest compatible version
+google-cloud-aiplatform = "^1.49.0"
+google-cloud-logging = "^3.8.0"
+google-cloud-trace = "^1.10.0"
+google-cloud-secret-manager = "^2.16.2"
 typer = "^0.12.3" # Using a version compatible with Gradio, without extras
 # rich dependency removed to see if it resolves help formatting error
-fastapi = "^0.115.2" # Or the latest compatible version
+fastapi = "^0.115.2"
 uvicorn = {extras = ["standard"], version = "^0.34.0"} # Updated for google-adk compatibility
 ttok = { git = "https://github.com/j3brns/token_count_trim.git" }
-# Google ADK dependency will be added here once available/specified
 gradio = "^5.25.2"
 python-dotenv = "^1.1.0"
 google-adk = "^0.5.0"
 PyYAML = "^6.0" # For parsing prompt definition files
-# click pin removed, let Poetry resolve
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

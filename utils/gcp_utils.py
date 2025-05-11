@@ -1,7 +1,12 @@
 # utils/gcp_utils.py
 
+import logging  # Import logging
+
 import google_crc32c
 from google.cloud import secretmanager
+
+# Initialize logger for this module
+logger = logging.getLogger(__name__)
 
 # Initialize the Secret Manager client
 secret_manager_client = secretmanager.SecretManagerServiceClient()
@@ -21,12 +26,14 @@ def get_secret(
         The secret payload as a string, or None if access fails.
     """
     if not project_id or not secret_id:
-        print("Error: GCP Project ID and Secret ID must be provided.")
-        # In a real app, consider raising an exception or logging more formally
+        logger.error(
+            "GCP Project ID and Secret ID must be provided to get_secret.",
+            extra={"project_id": project_id, "secret_id": secret_id},
+        )
         return None
 
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
-    print(f"Attempting to access secret: {name}")  # Temporary print for debugging
+    logger.info(f"Attempting to access secret.", extra={"secret_name": name})
 
     try:
         response = secret_manager_client.access_secret_version(request={"name": name})
@@ -35,13 +42,23 @@ def get_secret(
         crc32c = google_crc32c.Checksum()
         crc32c.update(response.payload.data)
         if response.payload.data_crc32c != int(crc32c.hexdigest(), 16):
-            print("Warning: Secret payload checksum verification failed.")
-            # Depending on policy, you might return None or raise an error here
+            logger.warning(
+                "Secret payload checksum verification failed.",
+                extra={"secret_name": name},
+            )
+            # Depending on policy, you might return None or raise an error here.
+            # For now, we proceed but log the warning.
 
         payload = response.payload.data.decode("UTF-8")
-        print(f"Successfully accessed secret: {secret_id}")  # Temporary print
+        logger.info(
+            f"Successfully accessed secret.",
+            extra={"secret_name": name, "secret_id": secret_id},
+        )
         return payload
     except Exception as e:
-        print(f"Error accessing secret {name}: {e}")
-        # Consider more specific exception handling and logging
+        logger.error(
+            f"Error accessing secret {name}: {e}",
+            exc_info=True,  # Include exception info in the log
+            extra={"secret_name": name},
+        )
         return None

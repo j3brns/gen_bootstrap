@@ -7,8 +7,8 @@ This document outlines the detailed plan for creating a scaffold and command-lin
 The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation) are also in progress. Here's a high-level overview:
 
 * **Alpha Phase**: [DONE] - Core scaffold, basic CLI commands, and project structure are in place.
-* **Beta Phase**: [IN PROGRESS] - Most CLI commands for resource management (tools, prompts, secrets) are implemented. Some integration with GCP services is complete.
-* **Gamma Phase**: [PARTIAL] - Some advanced features like `setup-gcp` automation are in progress, while others (monitoring, evaluation) are still planned.
+* **Beta Phase**: [IN PROGRESS] - Most CLI commands for resource management (tools, prompts, secrets, test execution) are implemented. Some integration with GCP services is complete.
+* **Gamma Phase**: [IN PROGRESS] - Key features like `setup-gcp` automation, `cli deploy` test integration, and initial `monitoring` CLI commands are now complete or in progress. Other areas like full monitoring, evaluation, and state management are still planned.
 
 The following sections include status markers ([DONE], [IN PROGRESS], [TODO]) to provide a more detailed view of progress against the plan.
 
@@ -132,8 +132,8 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
         *   `gen-bootstrap tools`:
             *   [DONE] `tools list`: Lists available agent tools.
             *   [DONE] `tools describe <tool_name>`: Shows detailed information about a specific tool.
-        *   [TODO] `gen-bootstrap test`: Command to run tests.
-    *   [IN PROGRESS] More comprehensive unit tests and initial integration tests.
+        *   [DONE] `gen-bootstrap test`: Command to run tests (core functionality and initial tests implemented).
+    *   [IN PROGRESS] More comprehensive unit tests and initial integration tests (recent additions for `cli test`, `get_current_time_async`, and `adk.agent` configuration).
     *   [DONE] Guidance on setting up IAM permissions for Cloud Run service identity.
 
 ### Gamma Phase (Advanced Features, Observability, Evaluation, Refinement)
@@ -149,10 +149,10 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
     *   **GCP Resource Provisioning Automation:**
         *   [IN PROGRESS] `gen-bootstrap setup-gcp`: Command to automate creation of key GCP resources using `gcloud`. Currently implements API enablement and IAM policy configuration.
     *   **Monitoring and Alerting:**
-        *   [TODO] `gen-bootstrap monitoring setup/dashboard/alerts`: Commands to configure Cloud Monitoring.
-    *   [TODO] More comprehensive integration tests.
+        *   [IN PROGRESS] `gen-bootstrap monitoring setup/dashboard/alerts`: Commands to configure Cloud Monitoring. Initial `setup` command implemented; `dashboard` and `alerts` are stubs.
+    *   [IN PROGRESS] More comprehensive integration tests.
     *   [TODO] Set up the structure and initial scripts for Evaluation Tests.
-    *   [TODO] Integrate test execution into the `cli deploy` command (optional).
+    *   [DONE] Integrate test execution into the `cli deploy` command (optional).
     *   [TODO] Provide guidance or templates for **CI/CD pipeline integration**.
     *   [IN PROGRESS] Comprehensive `README.md` and detailed documentation in `docs/`.
 
