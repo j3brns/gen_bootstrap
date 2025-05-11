@@ -130,6 +130,24 @@ The deployment process primarily leverages Cloud Build with Buildpacks (as per A
 * `docs/guides/manual_gcp_setup.md`: **Essential** for initial GCP configuration.
 * `docs/tutorials/01-getting-started.md`: Initial setup tutorial.
 
+## Documentation
+
+This project includes comprehensive documentation to help you understand, use, and contribute to the scaffold.
+
+*   [Contributing Guide](docs/CONTRIBUTING.md)
+*   [Design Principles](docs/design_principles.md)
+*   [Glossary](docs/glossary.md)
+*   [Troubleshooting Guide](docs/troubleshooting.md)
+*   [Manual GCP Setup Guide](docs/guides/manual_gcp_setup.md)
+*   [Getting Started Tutorial](docs/tutorials/01-getting-started.md)
+*   [Detailed Project Plan](docs/plan/detailed_plan.md)
+*   [Executive Overview of Plan](docs/plan/executive_overview.md)
+*   [Component Diagram](docs/architecture/component_diagram.md)
+*   [Deployment Diagram](docs/architecture/deployment_diagram.md)
+*   [Architecture Decision Records (ADRs)](docs/adrs/)
+*   [Feature Documentation](docs/features/)
+*   [Maintenance Documentation](docs/maintenance/)
+
 ## Roadmap
 
 The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation and initial monitoring CLI commands) are also in progress.

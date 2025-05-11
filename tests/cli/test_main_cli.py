@@ -236,7 +236,8 @@ def test_cli_test_command_with_coverage(
     )
     # Simulate that .coverage_data directory and .coverage file might or might not exist
     # The command should try to create .coverage_data if coverage is on.
-    # The clean logic inside the 'test' command is only triggered if '--clean' is also passed.
+    # The clean logic inside the 'test' command is only triggered if '--clean' 
+    # is also passed.
     # So, for this test, os.remove for .coverage file won't be called without --clean.
 
     result = runner.invoke(app, ["test", "--coverage"])
