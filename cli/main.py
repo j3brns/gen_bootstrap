@@ -474,7 +474,7 @@ def test(
                 f"Tests failed with return code: {result.returncode}",
                 fg=typer.colors.RED,
             )
-            return result.returncode
+            raise typer.Exit(code=result.returncode)
 
     except FileNotFoundError:
         typer.secho("ERROR: 'poetry' or 'pytest' not found.", fg=typer.colors.RED)

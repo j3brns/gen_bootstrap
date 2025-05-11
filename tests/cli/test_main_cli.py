@@ -1,8 +1,7 @@
 # tests/cli/test_main_cli.py
 import os  # Added for mocking os functions
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
 from typer.testing import CliRunner
 
 from cli.main import app  # Main CLI app
@@ -59,9 +58,8 @@ def test_setup_gcp_enables_apis(
             # Check if the project is correctly specified
             assert "--project=test-project-id" in command_list
             break
-    assert (
-        enable_api_call_found
-    ), "gcloud services enable command not found in subprocess calls"
+    assert enable_api_call_found, \
+        "gcloud services enable command not found in subprocess calls"
 
 
 @patch("cli.main.shutil.which")
@@ -79,15 +77,15 @@ def test_setup_gcp_sets_iam_aiplatform_user(
     default_sa_email = f"{mock_project_number}-compute@developer.gserviceaccount.com"
 
     # Configure mock_subprocess_run for multiple calls:
-    # 1. For enabling APIs (already tested, but will be called)
+    # 1. For enabling APIs (this call is made first in the actual command)
     # 2. For 'gcloud projects describe' to get project number
     # 3. For 'gcloud projects add-iam-policy-binding' for aiplatform.user
     mock_subprocess_run.side_effect = [
         MagicMock(
             returncode=0, stdout="APIs enabled/verified.", stderr=""
-        ),  # API enable
+        ),  # API enable call
         MagicMock(
-            returncode=0, stdout=mock_project_number + "\n", stderr=""
+            returncode=0, stdout=mock_project_number + "\n", stderr="", check=True
         ),  # Project describe
         MagicMock(returncode=0, stdout="IAM policy updated.", stderr=""),  # IAM binding
     ]
@@ -96,9 +94,8 @@ def test_setup_gcp_sets_iam_aiplatform_user(
     assert result.exit_code == 0
 
     # Check the calls to subprocess.run
-    assert (
-        mock_subprocess_run.call_count >= 2
-    )  # At least API enable and project describe, then IAM
+    # Expecting 3 calls: API enable, project describe, IAM binding for aiplatform.user
+    assert mock_subprocess_run.call_count >= 3
 
     # Check for 'gcloud projects describe' call
     describe_call_args = None
@@ -130,9 +127,8 @@ def test_setup_gcp_sets_iam_aiplatform_user(
         ):
             iam_binding_call_args = command_list
             break
-    assert (
-        iam_binding_call_args is not None
-    ), "IAM binding for aiplatform.user not called correctly"
+    assert iam_binding_call_args is not None, \
+        "IAM binding for aiplatform.user not called correctly"
     assert test_project_id in iam_binding_call_args
 
 
@@ -142,7 +138,10 @@ def test_setup_gcp_sets_iam_aiplatform_user(
 def test_setup_gcp_sets_iam_secretmanager_accessor(
     mock_proj_settings, mock_subprocess_run, mock_shutil_which
 ):
-    """Test 'setup-gcp' grants 'roles/secretmanager.secretAccessor' to the default service account."""
+    """
+    Test 'setup-gcp' grants 'roles/secretmanager.secretAccessor'
+    to the default service account.
+    """
     mock_shutil_which.return_value = "/path/to/gcloud"
     test_project_id = "test-iam-project"
     mock_proj_settings.gcp_project_id = test_project_id
@@ -151,7 +150,7 @@ def test_setup_gcp_sets_iam_secretmanager_accessor(
     default_sa_email = f"{mock_project_number}-compute@developer.gserviceaccount.com"
 
     # Configure mock_subprocess_run for multiple calls:
-    # 1. For enabling APIs (already tested, but will be called)
+    # 1. For enabling APIs
     # 2. For 'gcloud projects describe' to get project number
     # 3. For 'gcloud projects add-iam-policy-binding' for aiplatform.user
     # 4. For 'gcloud projects add-iam-policy-binding' for secretmanager.secretAccessor
@@ -189,9 +188,8 @@ def test_setup_gcp_sets_iam_secretmanager_accessor(
         ):
             secretmanager_binding_call_args = command_list
             break
-    assert (
-        secretmanager_binding_call_args is not None
-    ), "IAM binding for secretmanager.secretAccessor not called correctly"
+    assert secretmanager_binding_call_args is not None, \
+        "IAM binding for secretmanager.secretAccessor not called correctly"
     assert test_project_id in secretmanager_binding_call_args
 
 
@@ -211,12 +209,11 @@ def test_cli_test_command_simple_run(
 
     assert result.exit_code == 0
     # Check if "Running tests..." is in stdout, Typer prints this before subprocess call
-    # For more precise check of subprocess output, it's better to inspect what's passed to typer.echo
+    # For more precise check of subprocess output, it's better to inspect
+    # what's passed to typer.echo.
     # For now, checking result.stdout is a general approach.
     assert "Running tests..." in result.stdout
-    assert (
-        "Pytest run successful" in result.stdout
-    )  # This comes from the mocked subprocess.run
+    assert "Pytest run successful" in result.stdout
 
     # Check that subprocess.run was called with the correct basic command
     mock_subprocess_run.assert_called_once()
@@ -315,7 +312,7 @@ def test_cli_test_command_with_junit_xml(
 
     mock_subprocess_run.assert_called_once()
     called_args = mock_subprocess_run.call_args[0][0]
-    assert f"--junitxml=reports/junit.xml" in called_args
+    assert "--junitxml=reports/junit.xml" in called_args
 
     mock_os_makedirs.assert_any_call(".coverage_data", exist_ok=True)
     mock_os_makedirs.assert_any_call("reports", exist_ok=True)
@@ -348,7 +345,9 @@ def test_cli_test_command_with_clean(
     assert "Coverage data file removed." in result.stdout
 
     mock_os_makedirs.assert_any_call(".coverage_data", exist_ok=True)
-    mock_os_remove.assert_called_once_with(os.path.join(".coverage_data", ".coverage"))
+    mock_os_remove.assert_called_once_with(
+        os.path.join(".coverage_data", ".coverage")
+    )
 
     mock_subprocess_run.assert_called_once()
     called_args = mock_subprocess_run.call_args[0][0]
@@ -386,7 +385,7 @@ def test_cli_test_command_failure(mock_subprocess_run):
 
     assert result.exit_code == 1  # CLI should exit with pytest's error code
     assert "Some tests failed" in result.stdout
-    assert "Error details" in result.stdout  # stderr from pytest is echoed
+    assert "Error details" in result.stderr  # stderr from pytest is echoed
     assert "Tests failed with return code: 1" in result.stdout
 
 

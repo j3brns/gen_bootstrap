@@ -27,7 +27,7 @@ def test_agent_initialization_with_default_model(mocker):
     """
     Test that the root_agent is initialized with the model specified in settings.
     """
-    test_model_name = "gemini-test-model"
+    test_model_name = "gemini-1.5-pro-latest"
 
     # Mock the settings object that adk.agent will import
     mock_settings = MagicMock()
@@ -38,7 +38,7 @@ def test_agent_initialization_with_default_model(mocker):
     # Reload adk.agent to re-initialize root_agent with the mocked settings
     importlib.reload(adk.agent)
 
-    assert adk.agent.root_agent.model_config['engine'] == test_model_name
+    assert adk.agent.root_agent.model == test_model_name
     assert adk.agent.root_agent.name == "gen_bootstrap_core_assistant"
 
 
