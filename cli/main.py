@@ -171,7 +171,8 @@ def deploy(
         bool,
         typer.Option(
             "--run-tests",
-            help="Run tests with coverage before deploying. Deployment will be aborted if tests fail.",
+            help="Run tests with coverage before deploying. "
+            "Deployment will be aborted if tests fail.",
         ),
     ] = False,
 ):
@@ -230,7 +231,8 @@ def deploy(
                 )
             else:
                 typer.secho(
-                    f"Pre-deployment tests failed (exit code: {result.returncode}). Deployment aborted.",
+                    f"Pre-deployment tests failed (exit code: {result.returncode}). "
+                    "Deployment aborted.",
                     fg=typer.colors.RED,
                 )
                 raise typer.Exit(code=1)
@@ -264,7 +266,8 @@ def deploy(
             fg=typer.colors.RED,
         )
         typer.secho(
-            "Ensure GCP_PROJECT_ID is set in .env, passed as option, or loaded by config.",
+            "Ensure GCP_PROJECT_ID is set in .env, passed as option, "
+            "or loaded by config.",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)
@@ -393,13 +396,13 @@ def test(
                         typer.echo("Coverage data file removed.")
                     except PermissionError:
                         typer.secho(
-                            f"WARNING: Could not remove coverage data file: Permission denied. "
-                            f"Try closing any processes that might be using it.",
+                            "WARNING: Could not remove coverage data file: Permission denied. "
+                            "Try closing any processes that might be using it.",
                             fg=typer.colors.YELLOW,
                         )
                     except Exception as e:
                         typer.secho(
-                            f"WARNING: Could not remove coverage data file: {e}",
+                            f"WARNING: Could not create coverage data directory: {e}",
                             fg=typer.colors.YELLOW,
                         )
         except Exception as e:
@@ -509,7 +512,7 @@ def setup_gcp(
 
     if not shutil.which("gcloud"):
         typer.secho(
-            "ERROR: 'gcloud' CLI not found. Please install and configure it, then ensure it's in your PATH.",
+            "ERROR: 'gcloud' CLI not found. Please install and configure it.",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)
@@ -524,11 +527,13 @@ def setup_gcp(
             effective_project_id = project_settings.gcp_project_id
         else:
             typer.secho(
-                "GCP Project ID not provided via --project option and not found or not configured in project settings.",
+                "GCP Project ID not provided via --project option and not found "
+                "or not configured in project settings.",
                 fg=typer.colors.RED,
             )
             typer.secho(
-                "Please provide a valid project ID using the --project option or configure it in your .env file.",
+                "Please provide a valid project ID using the --project option "
+                "or configure it in your .env file.",
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
@@ -579,80 +584,82 @@ def setup_gcp(
                 typer.secho(
                     "gcloud error output:\n" + result.stderr, fg=typer.colors.RED
                 )
-            if result.stdout:  # Sometimes gcloud puts error details in stdout
+            if result.stdout:
                 typer.secho("gcloud output:\n" + result.stdout, fg=typer.colors.RED)
-            raise typer.Exit(code=1)
-    except (
-        FileNotFoundError
-    ):  # Should be caught by shutil.which earlier, but as a safeguard
-        typer.secho(
-            "ERROR: 'gcloud' command not found during subprocess execution.",
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(code=1)
-    except Exception as e:
-        typer.secho(
-            f"An unexpected error occurred while enabling APIs: {e}",
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(code=1)
-
-    typer.echo("\nAPI enabling step complete.")
-
-    # 2. Grant IAM role: roles/aiplatform.user to default Compute Engine SA
-    typer.echo(
-        f"\nAttempting to grant 'roles/aiplatform.user' to default Compute SA for project {effective_project_id}..."
-    )
-
-    # Get project number
-    get_proj_num_cmd = [
-        "gcloud",
-        "projects",
-        "describe",
-        effective_project_id,
-        "--format=value(projectNumber)",
-    ]
-    typer.echo(f"Executing: {' '.join(get_proj_num_cmd)}")
-    try:
-        proj_num_result = subprocess.run(
-            get_proj_num_cmd, capture_output=True, text=True, check=True
-        )
-        project_number = proj_num_result.stdout.strip()
-        if not project_number:
             typer.secho(
-                "Error: Could not retrieve project number.", fg=typer.colors.RED
+                "Continuing with other setup steps despite API enabling issues.",
+                fg=typer.colors.YELLOW,
+            )
+
+        # 2. Get the project number and compute the default service account
+        typer.echo(
+            f"\nRetrieving project number for project {effective_project_id}..."
+        )
+        describe_cmd = [
+            "gcloud",
+            "projects",
+            "describe",
+            effective_project_id,
+            "--format=value(projectNumber)",
+        ]
+        typer.echo(f"Executing: {' '.join(describe_cmd)}")
+
+        project_number_result = subprocess.run(
+            describe_cmd, capture_output=True, text=True, check=False
+        )
+        if project_number_result.returncode != 0:
+            typer.secho(
+                f"Error getting project number. 'gcloud' exited with code {project_number_result.returncode}.",
+                fg=typer.colors.RED,
+            )
+            if project_number_result.stderr:
+                typer.secho(
+                    "gcloud error output:\n" + project_number_result.stderr,
+                    fg=typer.colors.RED,
+                )
+            typer.secho(
+                "Cannot proceed with IAM setup without project number.",
+                fg=typer.colors.RED,
             )
             raise typer.Exit(code=1)
 
+        project_number = project_number_result.stdout.strip()
         default_sa_email = f"{project_number}-compute@developer.gserviceaccount.com"
-        typer.echo(f"Default Compute SA identified: {default_sa_email}")
+        typer.echo(
+            f"Project number: {project_number}, "
+            f"default Compute Engine SA: {default_sa_email}"
+        )
 
-        # Grant roles/aiplatform.user
-        grant_aiplatform_cmd = [
+        # 2. Grant IAM role: roles/aiplatform.user to default Compute Engine SA
+        typer.echo(
+            f"\nAttempting to grant 'roles/aiplatform.user' to default Compute SA "
+            f"({default_sa_email}) for project {effective_project_id}..."
+        )
+        grant_ai_cmd = [
             "gcloud",
             "projects",
             "add-iam-policy-binding",
             effective_project_id,
             f"--member=serviceAccount:{default_sa_email}",
             "--role=roles/aiplatform.user",
-            "--condition=None",  # Explicitly set no condition
+            "--condition=None",
         ]
-        typer.echo(f"Executing: {' '.join(grant_aiplatform_cmd)}")
+        typer.echo(f"Executing: {' '.join(grant_ai_cmd)}")
 
-        run_aiplatform_iam_command = True
+        run_ai_iam_command = True
         if interactive:
             if not typer.confirm(
                 f"Proceed with granting 'roles/aiplatform.user' to {default_sa_email}?",
                 default=True,
             ):
                 typer.echo("Granting 'roles/aiplatform.user' skipped by user.")
-                run_aiplatform_iam_command = False
+                run_ai_iam_command = False
             else:
                 typer.echo("User confirmed granting 'roles/aiplatform.user'.")
 
-        if run_aiplatform_iam_command:
+        if run_ai_iam_command:
             iam_result = subprocess.run(
-                grant_aiplatform_cmd, capture_output=True, text=True, check=False
+                grant_ai_cmd, capture_output=True, text=True, check=False
             )
             if iam_result.returncode == 0:
                 typer.secho(
@@ -667,7 +674,8 @@ def setup_gcp(
                     or "already exists" in iam_result.stdout.lower()
                 ):
                     typer.secho(
-                        f"Note: IAM binding for 'roles/aiplatform.user' to {default_sa_email} likely already exists.",
+                        f"Note: IAM binding for 'roles/aiplatform.user' to "
+                        f"{default_sa_email} likely already exists.",
                         fg=typer.colors.YELLOW,
                     )
                     if iam_result.stdout:
@@ -676,7 +684,8 @@ def setup_gcp(
                         typer.echo("gcloud stderr:\n" + iam_result.stderr)
                 else:
                     typer.secho(
-                        f"Error granting 'roles/aiplatform.user'. 'gcloud' exited with code {iam_result.returncode}.",
+                        f"Error granting 'roles/aiplatform.user'. "
+                        f"'gcloud' exited with code {iam_result.returncode}.",
                         fg=typer.colors.RED,
                     )
                     if iam_result.stderr:
@@ -697,7 +706,8 @@ def setup_gcp(
 
         # 3. Grant IAM role: roles/secretmanager.secretAccessor to default Compute Engine SA
         typer.echo(
-            f"\nAttempting to grant 'roles/secretmanager.secretAccessor' to default Compute SA ({default_sa_email}) for project {effective_project_id}..."
+            f"\nAttempting to grant 'roles/secretmanager.secretAccessor' to default Compute SA "
+            f"({default_sa_email}) for project {effective_project_id}..."
         )
         grant_secretmanager_cmd = [
             "gcloud",
@@ -731,7 +741,8 @@ def setup_gcp(
             )
             if sm_iam_result.returncode == 0:
                 typer.secho(
-                    f"Successfully granted/verified 'roles/secretmanager.secretAccessor' to {default_sa_email}.",
+                    f"Successfully granted/verified 'roles/secretmanager.secretAccessor' to "
+                    f"{default_sa_email}.",
                     fg=typer.colors.GREEN,
                 )
                 if sm_iam_result.stdout:
@@ -742,7 +753,8 @@ def setup_gcp(
                     or "already exists" in sm_iam_result.stdout.lower()
                 ):
                     typer.secho(
-                        f"Note: IAM binding for 'roles/secretmanager.secretAccessor' to {default_sa_email} likely already exists.",
+                        f"Note: IAM binding for 'roles/secretmanager.secretAccessor' to "
+                        f"{default_sa_email} likely already exists.",
                         fg=typer.colors.YELLOW,
                     )
                     if sm_iam_result.stdout:
@@ -751,7 +763,8 @@ def setup_gcp(
                         typer.echo("gcloud stderr:\n" + sm_iam_result.stderr)
                 else:
                     typer.secho(
-                        f"Error granting 'roles/secretmanager.secretAccessor'. 'gcloud' exited with code {sm_iam_result.returncode}.",
+                        f"Error granting 'roles/secretmanager.secretAccessor'. "
+                        f"'gcloud' exited with code {sm_iam_result.returncode}.",
                         fg=typer.colors.RED,
                     )
                     if sm_iam_result.stderr:
@@ -788,7 +801,8 @@ def setup_gcp(
         raise typer.Exit(code=1)
     except Exception as e:
         typer.secho(
-            f"An unexpected error occurred during IAM setup: {e}", fg=typer.colors.RED
+            f"An unexpected error occurred during IAM setup: {e}",
+            fg=typer.colors.RED,
         )
         raise typer.Exit(code=1)
 
@@ -796,9 +810,11 @@ def setup_gcp(
         "\nAutomated GCP setup steps for API enabling and IAM roles are complete (or verified)."
     )
     typer.echo(
-        f"Please also consult the manual guide for any further manual steps: docs/guides/manual_gcp_setup.md"
+        "Please also consult the manual guide for any further manual steps: "
+        "docs/guides/manual_gcp_setup.md"
     )
 
 
 if __name__ == "__main__":
     app()
+    

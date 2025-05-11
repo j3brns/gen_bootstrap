@@ -22,7 +22,6 @@ Addressing test execution issues and planning for further memory bank enrichment
 - Re-ran tests again after reverting the import and installing the dependency. The `ImportError: cannot import name 'GoogleSearch' from 'google.adk.tools'` persists, but the `PytestUnknownMarkWarning` is resolved.
 - Made further attempts to fix persistent Flake8 linting errors in `tests/adk/test_agent.py`.
 - Successfully updated `adk/agent.py` using `write_to_file` to fix the `ImportError` and update the agent to use the `google_search` function.
-- Task was interrupted.
 
 ## Next Steps:
 - Re-run the tests to confirm that the `ImportError` is resolved and the tests pass.
@@ -35,8 +34,11 @@ Addressing test execution issues and planning for further memory bank enrichment
 - Identifying how the code implements the patterns and decisions documented in the ADRs and architecture diagrams.
 - Ensuring consistency between user-facing documentation and the memory bank.
 - Addressing test failures and warnings to ensure a stable testing environment.
-- Investigating the correct import path for `GoogleSearch` in the installed `google-adk` version.
-- Noting persistent linting issues that may require external investigation.
+
+## ADK Summary:
+- The Agent Development Kit (ADK) is an open-source Python toolkit for building, evaluating, and deploying AI agents, with a focus on Google Cloud and Gemini integration.
+- Key features include a rich tool ecosystem, code-first development, flexible orchestration, context & state management, callbacks for control, deployment readiness, and an evaluation framework.
+- Key concepts include Agents, Tools, Callbacks, Sessions, State, Memory, Artifacts, and Events.
 
 ## Important Patterns and Preferences:
 - Adhering to the defined structure and purpose of each memory bank file.
@@ -50,6 +52,17 @@ Addressing test execution issues and planning for further memory bank enrichment
 - Tools are provided to the agent during its initialization.
 - The agent's instructions are clearly defined within the code.
 - The project integrates both a custom tool (`get_current_time_tool`) and a built-in ADK tool (`GoogleSearch`).
+- **ADK Architecture and Components:**
+    - **Agents:** The fundamental execution units, inheriting from `BaseAgent`. Includes `LlmAgent` for LLM-driven reasoning and `Workflow Agents` for deterministic orchestration.
+    - **Tools:** Capabilities provided to agents, including `Function Tools`, `Built-in Tools`, `OpenAPI Tools`, and `Third-Party Tools`.
+    - **Callbacks:** Functions that hook into agent lifecycle points for control and customization.
+    - **Sessions, State & Memory:** Mechanisms for managing conversational context and long-term knowledge.
+    - **Artifacts:** Named, versioned binary data associated with sessions or users.
+    - **Runtime & Events:** The execution engine and communication mechanism.
+- **FastAPI Integration:**
+    - The project uses FastAPI to serve the ADK agent via HTTP, providing standard ADK endpoints and a custom health check. The `get_fast_api_app` function from the ADK is used to create the FastAPI app.
+- **Logging and Tracing:**
+    - The project integrates Cloud Logging and Trace for observability, using structured logging throughout the project.
 - **Documentation Consistency Review Findings:**
     - Overall, user-facing documentation is largely consistent with the memory bank.
     - Minor points for potential refinement include:
@@ -70,4 +83,3 @@ Addressing test execution issues and planning for further memory bank enrichment
     - Persistent Flake8 linting errors on specific lines in `tests/adk/test_agent.py` were encountered despite multiple attempts to fix them, suggesting a potential external configuration issue.
     - Further attempts were made to fix the persistent Flake8 linting errors on specific lines in `tests/adk/test_agent.py`.
     - Successfully updated `adk/agent.py` using `write_to_file` to fix the `ImportError` and update the agent to use the `google_search` function.
-    - Task was interrupted.

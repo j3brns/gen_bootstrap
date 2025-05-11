@@ -17,15 +17,15 @@ This feature provides utilities for counting tokens in text and truncating text 
 
 ## Components
 
-*   **`token_count_trim`:** The primary Python package used for token counting and basic truncation.
-*   **`utils/token_utils.py`:** Python module containing wrapper functions for `token_count_trim` and potentially implementing more advanced truncation logic.
+*   **`ttok`:** The primary tool used for token counting and basic truncation, accessed via the `subprocess` module.
+*   **`utils/token_utils.py`:** Python module containing wrapper functions for executing the `ttok` command and potentially implementing more advanced truncation logic.
 *   **ADK Agents (`adk/`):** Agent code will call `utils.token_utils` functions to check token counts and truncate input/history before making model calls.
 *   **Configuration:** Potentially store model-specific context window sizes in `config/`.
 
 ## Implementation Details
 
-*   Include `token_count_trim` as a core dependency in `pyproject.toml`.
-*   Implement functions in `utils/token_utils.py` to wrap `token_count_trim` functions for counting and trimming.
+*   Include `ttok` as a core dependency in `pyproject.toml` (installed from Git repository).
+*   Implement functions in `utils/token_utils.py` to execute the `ttok` command via `subprocess` for counting and trimming.
 *   Design agent logic to use these utilities to manage the context window.
 *   (Gamma Phase) Research and implement more advanced truncation strategies (e.g., using a separate model for summarization) in `utils/token_utils.py`.
 *   Document how to use the token management utilities in agent code and notebooks.

@@ -11,7 +11,7 @@ Thank you for your interest in contributing to the GCP Generative AI ADK Scaffol
     cd gcp-genai-adk-scaffold # Adjust directory name if different
     ```
 3.  **Set up the Development Environment:**
-    *   Ensure you have Python 3.8+ and Poetry installed.
+    *   Ensure you have Python 3.9+ and Poetry installed.
     *   Install project dependencies, including development dependencies:
         ```bash
         poetry install

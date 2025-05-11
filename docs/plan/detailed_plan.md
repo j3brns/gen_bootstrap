@@ -58,7 +58,7 @@ graph LR
 *   `cli/`: Source code for the command-line interface.
 *   `config/`: Configuration files for the project and GCP settings.
 *   `utils/`: Shared utility functions and modules (GCP client wrappers, logging, token handling, retries, secret management, state management).
-*   `deployment/`: Contains deployment-specific files like the `Dockerfile`.
+*   `deployment/`: Contains deployment-specific files like the `Dockerfile` and `cloudbuild.yaml` for BuildKit.
 *   `prompts/`: (Optional) Directory for local prompt development or versioning before uploading to Vertex AI Prompt Classes.
 *   `evaluation/`: (Optional) Directory for evaluation scripts, datasets, and results.
 *   `tests/`: Contains unit and integration tests.
@@ -74,6 +74,7 @@ graph LR
 
 *   **Language:** Python
 *   **Package Manager:** Poetry
+*   **Core Agent Framework:** Google Agent Development Kit (ADK)
 *   **CLI Framework:** Typer/Click
 *   **Web Framework (if needed for ADK app):** FastAPI/Uvicorn
 *   **Testing Framework:** pytest
@@ -101,11 +102,11 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
     *   [DONE] A simple "Hello World" style example ADK agent in `adk/`.
     *   [DONE] Basic Structured Logging integration with Cloud Logging in `utils/`.
     *   [DONE] Basic Token Management using `token_count_trim` in `utils/`.
-    *   [DONE] Basic Cloud Run Packaging (`Dockerfile`) for the simple agent.
+    *   [DONE] Basic Cloud Run Packaging (`Dockerfile` and `cloudbuild.yaml` for BuildKit) for the simple agent.
     *   **CLI Commands:**
         *   [DONE] `gen-bootstrap init`: Project and environment setup.
         *   [DONE] `gen-bootstrap run`: Local execution of FastAPI server or ADK Web UI.
-        *   [DONE] `gen-bootstrap deploy`: Basic deployment to Cloud Run.
+        *   [DONE] `gen-bootstrap deploy`: Basic deployment to Cloud Run using Cloud Build with BuildKit.
     *   [DONE] Initial `tests/` structure and basic unit tests for `utils/`.
     *   [DONE] Initial `notebooks/` structure and a basic example notebook.
     *   [DONE] Initial `docs/` structure with placeholder files.
@@ -139,7 +140,6 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
 ### Gamma Phase (Advanced Features, Observability, Evaluation, Refinement)
 
 *   **Focus:** Add more advanced features, enhance observability and evaluation capabilities, and refine the overall scaffold and CLI based on feedback and more complex use cases.
-*   **Deliverables:**
     *   [TODO] **Optional Weave Integration:** Implement conditional logging and tracing to Weave in `utils/`.
     *   [TODO] Implement more sophisticated **Token Management** strategies (e.g., summarization) in `utils/`.
     *   [TODO] Implement basic **Memory and State Management** patterns or examples within `adk/` using an external store (e.g., Firestore).
@@ -230,8 +230,8 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
 
 ### Deployment (`deployment/`)
 
-*   Contains the `Dockerfile` for containerizing the ADK application.
-*   `cli deploy` command orchestrates building the Docker image, pushing to a registry, and deploying to Cloud Run.
+*   Contains the `Dockerfile` and `cloudbuild.yaml` for building the container image with BuildKit.
+*   `cli deploy` command orchestrates building the Docker image, pushing to a registry, and deploying to Cloud Run using Cloud Build with BuildKit.
 *   Configures environment variables (including secret references) and guides on IAM permissions.
 
 ### Memory and State Management
@@ -285,3 +285,350 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
 *   `features/`: Feature cards outlining specific functionalities.
 
 This detailed plan provides a roadmap for building the GCP Generative AI ADK Scaffold and CLI, incorporating the features and considerations we discussed.
+
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/features/cloud_run_deployment.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+memory-bank/techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+memory-bank/techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing):
+docs/plan/detailed_plan.md
+
+# Current Time
+5/11/2025, 11:06:14 PM (Europe/London, UTC+1:00)
+
+# Context Window Usage
+194,617 / 1,048.576K tokens used (19%)
+
+# Current Mode
+ACT MODE
+</environment_details>
+</final_file_content>
+
+IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.
+
+<environment_details>
+# VSCode Visible Files
+../AppData/Local/Programs/Microsoft VS Code/README.md
+../AppData/Local/Programs/Microsoft VS Code/README.md
+docs/plan/detailed_plan.md
+
+# VSCode Open Tabs
+pyproject.toml
+adk/agent.py
+tests/tools/test_example_tool.py
+tests/adk/test_agent.py
+cli/main.py
+tests/cli/test_main_cli.py
+README.md
+memory-bank/adk-docs.md
+adk/adk-docs.md
+memory-bank/progress.md
+memory-bank/activeContext.md
+techContext.md
+memory-bank/systemPatterns.md
+docs/adrs/0009-use-firestore-for-state.md
+docs/adrs/0014-implement-tool-use-with-tools-directory.md
+docs/adrs/0003-use-vertex-ai-prompt-classes.md
+docs/adrs/0012-direct-inference-access-to-gemini.md
+docs/adrs/0013-handle-token-management-with-token-count-trim.md
+docs/features/tool_use.md
+docs/features/evaluation_framework.md
+docs/adrs/0005-integrate-cloud-logging-trace.md
+docs/design_principles.md
+docs/CONTRIBUTING.md
+docs/features/cloud_run_deployment.md
+docs/plan/detailed_plan.md
+count_tokens.ps1
+
+# Recently Modified Files
+These files have been modified since you last accessed them (file was just edited so you may need to re-read it before editing

@@ -3,7 +3,7 @@
 This document describes the system architecture, key technical decisions, design patterns, component relationships, and critical implementation paths.
 
 ## System Architecture:
-The system follows a component-based architecture with a central CLI for user interaction, ADK Agents for core AI logic, and a set of shared Utilities. Tools provide external capabilities to the agents. The application is designed for deployment on GCP, primarily Cloud Run, and integrates with various GCP services. A FastAPI application serves the ADK agent via HTTP, providing standard ADK endpoints and a custom health check.
+The system follows a component-based architecture with a central CLI for user interaction, ADK Agents for core AI logic, and a set of shared Utilities. Tools provide external capabilities to the agents. The application is designed for deployment on GCP, primarily Cloud Run, and integrates with various GCP services. A FastAPI application serves the ADK agent via HTTP, providing standard ADK endpoints, a custom health check, and serving the ADK Web UI.
 
 ### Command-Line Interface (CLI):
 The CLI, implemented using Typer (`cli/main.py`), serves as the primary interface for developers to manage the project lifecycle. It is structured into main commands and subcommand groups for specific functionalities:
@@ -87,6 +87,8 @@ graph LR
 - Add python-a2a dependency (ADR 0025).
 - Add fastmcp dependency and update Typer (ADR 0026).
 - Use Buildpacks for deployment (ADR 0027).
+- Use FastAPI/Uvicorn for backend (ADR 0011).
+- Integrate Cloud Logging and Trace (ADR 0005).
 
 ## Design Patterns:
 - Component-based architecture.

@@ -56,4 +56,13 @@ This document outlines the core design principles that guide the development of 
     *   Design agents to handle errors gracefully.
     *   Leverage the reliability of managed GCP services.
 
+## Technology Stack
+
+*   **Language:** Python
+*   **Package Manager:** Poetry
+*   **Core Agent Framework:** Google Agent Development Kit (ADK)
+*   **CLI Framework:** Typer/Click
+*   **Web Framework (if needed for ADK app):** FastAPI/Uvicorn
+*   **Testing Framework:** pytest
+
 These principles will guide the ongoing development and evolution of the scaffold, ensuring it remains a valuable resource for building generative AI applications on GCP.

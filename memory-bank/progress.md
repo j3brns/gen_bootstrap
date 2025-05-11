@@ -11,6 +11,8 @@ This document tracks what works, what's left to build, the current status, known
 - Basic structured logging and configuration management.
 - Example Gradio test client.
 - Initial documentation (ADRs, guides, tutorials, plan).
+- Successfully updated `adk/agent.py` using `write_to_file` to fix the `ImportError` and update the agent to use the `google_search` function.
+- Added tests for `utils/token_utils.py` and updated the code to use the `ttok` command-line tool.
 
 ## What's Left to Build:
 - Finalizing Cloud Trace integration.
@@ -19,6 +21,15 @@ This document tracks what works, what's left to build, the current status, known
 - Implementing Memory and State Management capabilities.
 - Further expanding test coverage.
 - Populating the memory bank files with comprehensive details (this is the current task).
+- Integrating the ADK into the project.
+- Implementing custom tools using the ADK.
+- Implementing agents using the ADK.
+- Implementing callbacks using the ADK.
+- Implementing sessions, state, and memory using the ADK.
+- Implementing artifacts using the ADK.
+- Implementing evaluation using the ADK.
+- Implementing deployment using the ADK.
+- Implementing safety and security measures using the ADK.
 
 ## Current Status:
 The project is actively in the Beta phase, with many core features implemented. Gamma phase development has commenced. Most Alpha phase deliverables are complete.
