@@ -2,6 +2,16 @@
 
 This document outlines the detailed plan for creating a scaffold and command-line interface (CLI) to accelerate the development of generative AI projects using the Google Agent Development Kit (ADK) on Google Cloud Platform (GCP).
 
+## Current Status (May 2025)
+
+The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation) are also in progress. Here's a high-level overview:
+
+* **Alpha Phase**: [DONE] - Core scaffold, basic CLI commands, and project structure are in place.
+* **Beta Phase**: [IN PROGRESS] - Most CLI commands for resource management (tools, prompts, secrets) are implemented. Some integration with GCP services is complete.
+* **Gamma Phase**: [PARTIAL] - Some advanced features like `setup-gcp` automation are in progress, while others (monitoring, evaluation) are still planned.
+
+The following sections include status markers ([DONE], [IN PROGRESS], [TODO]) to provide a more detailed view of progress against the plan.
+
 ## Project Goals
 
 1.  Provide a structured scaffold for generative AI projects built using the Google ADK.
@@ -84,49 +94,67 @@ The project will be developed iteratively in three phases: Alpha, Beta, and Gamm
 
 *   **Focus:** Establish the fundamental project structure, core technologies, basic GCP integration, and essential CLI commands to get a simple ADK agent running locally and deployed to Cloud Run with basic logging and token management.
 *   **Deliverables:**
-    *   Basic directory structure (`adk/`, `cli/`, `config/`, `utils/`, `deployment/`, `tests/`, `notebooks/`, `docs/`, `README.md`, `pyproject.toml`, `.pre-commit-config.yaml`).
-    *   Initial `pyproject.toml` with core dependencies (Poetry, Typer, FastAPI/Uvicorn, basic GCP libs, `token_count_trim`, dev dependencies like `pytest`, `pre-commit`, formatters/linters, `jupyterlab`).
-    *   Initial `.pre-commit-config.yaml` with basic hooks (formatting, linting, notebook output stripping).
-    *   Basic GCP Client Setup and SDK Wrapping in `utils/`.
-    *   A simple "Hello World" style example ADK agent in `adk/`.
-    *   Basic Structured Logging integration with Cloud Logging in `utils/`.
-    *   Basic Token Management using `token_count_trim` in `utils/`.
-    *   Basic Cloud Run Packaging (`Dockerfile`) for the simple agent.
-    *   **CLI Commands:** `cli init`, `cli run`, `cli deploy` (basic functionality).
-    *   Initial `tests/` structure and basic unit tests for `utils/`.
-    *   Initial `notebooks/` structure and a basic example notebook.
-    *   Initial `docs/` structure with placeholder files.
+    *   [DONE] Basic directory structure (`adk/`, `cli/`, `config/`, `utils/`, `deployment/`, `tests/`, `notebooks/`, `docs/`, `README.md`, `pyproject.toml`, `.pre-commit-config.yaml`).
+    *   [DONE] Initial `pyproject.toml` with core dependencies (Poetry, Typer, FastAPI/Uvicorn, basic GCP libs, `token_count_trim`, dev dependencies like `pytest`, `pre-commit`, formatters/linters, `jupyterlab`).
+    *   [DONE] Initial `.pre-commit-config.yaml` with basic hooks (formatting, linting, notebook output stripping).
+    *   [DONE] Basic GCP Client Setup and SDK Wrapping in `utils/`.
+    *   [DONE] A simple "Hello World" style example ADK agent in `adk/`.
+    *   [DONE] Basic Structured Logging integration with Cloud Logging in `utils/`.
+    *   [DONE] Basic Token Management using `token_count_trim` in `utils/`.
+    *   [DONE] Basic Cloud Run Packaging (`Dockerfile`) for the simple agent.
+    *   **CLI Commands:**
+        *   [DONE] `gen-bootstrap init`: Project and environment setup.
+        *   [DONE] `gen-bootstrap run`: Local execution of FastAPI server or ADK Web UI.
+        *   [DONE] `gen-bootstrap deploy`: Basic deployment to Cloud Run.
+    *   [DONE] Initial `tests/` structure and basic unit tests for `utils/`.
+    *   [DONE] Initial `notebooks/` structure and a basic example notebook.
+    *   [DONE] Initial `docs/` structure with placeholder files.
 
 ### Beta Phase (Enhanced GCP Integration, Core Agent Features, Basic Testing)
 
 *   **Focus:** Build upon the Alpha foundation by integrating more key GCP services, adding core agent capabilities like prompt management and secret handling, and establishing a more robust testing framework.
 *   **Deliverables:**
-    *   Full integration with **Vertex AI Prompt Classes** for fetching and listing prompts via `utils/`.
-    *   Integration with **Google Secret Manager** for securely retrieving secrets via `utils/`.
-    *   Initial implementation of **Tool Use / Function Calling**: `tools/` directory, tool interface, simple example tools, agent logic to use tools.
-    *   Integration with **Cloud Trace** in `utils/`.
-    *   Enhanced logging to include detailed request/response logging for model and tool interactions, correlated with trace IDs.
-    *   **CLI Commands:** Add `cli prompts`, `cli secrets`, `cli tools list/describe`, `cli test`.
-    *   More comprehensive unit tests and initial integration tests.
-    *   Guidance on setting up IAM permissions for Cloud Run service identity.
+    *   [DONE] Full integration with **Vertex AI Prompt Classes** for fetching and listing prompts via `utils/`.
+    *   [DONE] Integration with **Google Secret Manager** for securely retrieving secrets via `utils/`.
+    *   [DONE] Initial implementation of **Tool Use / Function Calling**: `tools/` directory, tool interface, simple example tools, agent logic to use tools.
+    *   [IN PROGRESS] Integration with **Cloud Trace** in `utils/`.
+    *   [IN PROGRESS] Enhanced logging to include detailed request/response logging for model and tool interactions, correlated with trace IDs.
+    *   **CLI Commands:**
+        *   `gen-bootstrap prompts`:
+            *   [DONE] `prompts list`: Lists available Prompts in Vertex AI Prompt Registry.
+            *   [DONE] `prompts get <prompt_id>`: Displays details of a specific Prompt.
+            *   [DONE] `prompts create --file <path.yaml>`: Creates a new Prompt (or new version) in Vertex AI.
+        *   `gen-bootstrap secrets`:
+            *   [DONE] `secrets list`: Lists secrets in Google Secret Manager.
+            *   [DONE] `secrets get <secret_id>`: Retrieves secret payload.
+            *   [DONE] `secrets create <secret_id>`: Creates a new (empty) secret.
+            *   [DONE] `secrets add-version <secret_id>`: Adds a new secret version.
+        *   `gen-bootstrap tools`:
+            *   [DONE] `tools list`: Lists available agent tools.
+            *   [DONE] `tools describe <tool_name>`: Shows detailed information about a specific tool.
+        *   [TODO] `gen-bootstrap test`: Command to run tests.
+    *   [IN PROGRESS] More comprehensive unit tests and initial integration tests.
+    *   [DONE] Guidance on setting up IAM permissions for Cloud Run service identity.
 
 ### Gamma Phase (Advanced Features, Observability, Evaluation, Refinement)
 
 *   **Focus:** Add more advanced features, enhance observability and evaluation capabilities, and refine the overall scaffold and CLI based on feedback and more complex use cases.
 *   **Deliverables:**
-    *   **Optional Weave Integration:** Implement conditional logging and tracing to Weave in `utils/`.
-    *   Implement more sophisticated **Token Management** strategies (e.g., summarization) in `utils/`.
-    *   Implement basic **Memory and State Management** patterns or examples within `adk/` using an external store (e.g., Firestore).
-    *   Provide examples or patterns for building more **Complex Orchestration / Agent Flows** in `adk/`.
-    *   Refine Tool Use implementation.
-    *   **Evaluation Framework:** `evaluation/` directory, `cli evaluate` command, structure for evaluation scripts and data.
-    *   **GCP Resource Provisioning Automation:** `cli setup gcp` command using `gcloud`.
-    *   **Monitoring and Alerting:** `cli monitoring setup/dashboard/alerts` commands to configure Cloud Monitoring.
-    *   More comprehensive integration tests.
-    *   Set up the structure and initial scripts for Evaluation Tests.
-    *   Integrate test execution into the `cli deploy` command (optional).
-    *   Provide guidance or templates for **CI/CD pipeline integration**.
-    *   Comprehensive `README.md` and detailed documentation in `docs/`.
+    *   [TODO] **Optional Weave Integration:** Implement conditional logging and tracing to Weave in `utils/`.
+    *   [TODO] Implement more sophisticated **Token Management** strategies (e.g., summarization) in `utils/`.
+    *   [TODO] Implement basic **Memory and State Management** patterns or examples within `adk/` using an external store (e.g., Firestore).
+    *   [TODO] Provide examples or patterns for building more **Complex Orchestration / Agent Flows** in `adk/`.
+    *   [TODO] Refine Tool Use implementation.
+    *   [TODO] **Evaluation Framework:** `evaluation/` directory, `cli evaluate` command, structure for evaluation scripts and data.
+    *   **GCP Resource Provisioning Automation:**
+        *   [IN PROGRESS] `gen-bootstrap setup-gcp`: Command to automate creation of key GCP resources using `gcloud`. Currently implements API enablement and IAM policy configuration.
+    *   **Monitoring and Alerting:**
+        *   [TODO] `gen-bootstrap monitoring setup/dashboard/alerts`: Commands to configure Cloud Monitoring.
+    *   [TODO] More comprehensive integration tests.
+    *   [TODO] Set up the structure and initial scripts for Evaluation Tests.
+    *   [TODO] Integrate test execution into the `cli deploy` command (optional).
+    *   [TODO] Provide guidance or templates for **CI/CD pipeline integration**.
+    *   [IN PROGRESS] Comprehensive `README.md` and detailed documentation in `docs/`.
 
 ## Key Components and Implementation Details
 

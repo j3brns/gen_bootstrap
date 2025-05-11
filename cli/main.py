@@ -8,12 +8,14 @@ from typing_extensions import Annotated
 
 from . import prompts_cli  # Import the new prompts subcommand module
 from . import tools_cli  # Import the tools subcommand module
+from . import secrets_cli # Import the new secrets subcommand module
 
 app = typer.Typer(name="gen-bootstrap")  # Set CLI name here
 
 # Add new subcommand groups
 app.add_typer(tools_cli.app, name="tools", help="Manage and inspect agent tools.")
-app.add_typer(prompts_cli.app, name="prompts", help="Manage Vertex AI Prompt Classes.")
+app.add_typer(prompts_cli.app, name="prompts", help="Manage Vertex AI Prompts using vertexai.preview.prompts.")
+app.add_typer(secrets_cli.app, name="secrets", help="Manage secrets in Google Secret Manager.")
 
 # Load .env variables for CLI execution context
 # This ensures project_settings can pick them up if CLI is run before app server
@@ -245,23 +247,222 @@ def deploy(
         raise typer.Exit(code=1)
 
 
+EXPECTED_APIS_TO_ENABLE = [ # Copied from test for consistency
+    "run.googleapis.com",
+    "iam.googleapis.com",
+    "secretmanager.googleapis.com",
+    "aiplatform.googleapis.com",
+    "logging.googleapis.com",
+    "monitoring.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "artifactregistry.googleapis.com",
+]
+
 @app.command()
-def setup_gcp():
-    """Provides guidance for manually setting up essential GCP resources."""
-    typer.echo("GCP Resource Setup Guidance (Manual Steps for Alpha/Beta):")
-    typer.echo("-----------------------------------------------------------")
-    typer.echo("A comprehensive guide is available at: docs/guides/manual_gcp_setup.md")
-    typer.echo("\nKey requirements:")
-    typer.echo("1. Active GCP Project with Billing enabled.")
-    typer.echo("2. `gcloud` CLI installed, authenticated, and project configured.")
-    typer.echo(
-        "3. Essential APIs enabled (Cloud Run, Secret Manager, Vertex AI, etc. - see guide)."
-    )
-    typer.echo("4. Secrets (if any) created in Secret Manager.")
-    typer.echo("5. Cloud Run service identity granted IAM permissions (see guide).")
-    typer.echo(
-        "\nPlease refer to the full guide for detailed commands and instructions."
-    )
+def test(
+    path: Annotated[str, typer.Option("--path", "-p", help="Path to test file or directory.")] = "tests",
+    coverage: Annotated[bool, typer.Option("--coverage", "-c", help="Enable coverage reporting.")] = False,
+    html: Annotated[bool, typer.Option("--html", help="Generate HTML coverage report.")] = False,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Enable verbose output.")] = False,
+    junit: Annotated[bool, typer.Option("--junit", help="Generate JUnit XML report.")] = False,
+    output_dir: Annotated[str, typer.Option("--output-dir", help="Directory for coverage reports.")] = ".coverage",
+):
+    """
+    Run tests using pytest with optional coverage reporting.
+    """
+    typer.echo("Running tests...")
+    
+    # Ensure the output directory exists if coverage is enabled
+    if coverage and (html or junit):
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Build the pytest command
+    pytest_cmd = ["poetry", "run", "pytest"]
+    
+    # Add path
+    pytest_cmd.append(path)
+    
+    # Add verbosity
+    if verbose:
+        pytest_cmd.append("-v")
+    
+    # Add coverage options
+    if coverage:
+        pytest_cmd.append("--cov=.")
+        
+        # Add coverage report formats
+        if html:
+            pytest_cmd.append(f"--cov-report=html:{output_dir}/html")
+        
+        if junit:
+            pytest_cmd.append(f"--junitxml={output_dir}/junit.xml")
+            
+        # Always add terminal report
+        pytest_cmd.append("--cov-report=term")
+    
+    # Execute the command
+    typer.echo(f"Executing: {' '.join(pytest_cmd)}")
+    try:
+        result = subprocess.run(pytest_cmd, check=False)
+        
+        if result.returncode == 0:
+            typer.secho("All tests passed successfully!", fg=typer.colors.GREEN)
+            
+            if coverage and html:
+                typer.echo(f"HTML coverage report generated in {output_dir}/html")
+                typer.echo(f"Open {output_dir}/html/index.html to view the report")
+                
+            return result.returncode
+        else:
+            typer.secho(f"Tests failed with return code: {result.returncode}", fg=typer.colors.RED)
+            return result.returncode
+            
+    except FileNotFoundError:
+        typer.secho("ERROR: 'poetry' or 'pytest' not found.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+    except Exception as e:
+        typer.secho(f"ERROR running tests: {e}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def setup_gcp(
+    project_id: Annotated[str, typer.Option("--project", "-p", help="GCP Project ID. If not provided, uses configured default.")] = None,
+    interactive: Annotated[bool, typer.Option(help="Enable interactive mode for confirmations.")] = False # Not used yet
+):
+    """
+    Automates parts of GCP setup: enables APIs. (IAM and other resources TBD).
+    Refers to docs/guides/manual_gcp_setup.md for full details.
+    """
+    typer.echo("Starting GCP setup process...")
+
+    if not shutil.which("gcloud"):
+        typer.secho(
+            "ERROR: 'gcloud' CLI not found. Please install and configure it, then ensure it's in your PATH.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=1)
+
+    effective_project_id = project_id
+    if not effective_project_id:
+        if hasattr(project_settings, 'gcp_project_id') and project_settings.gcp_project_id and project_settings.gcp_project_id != "your-gcp-project-id":
+            effective_project_id = project_settings.gcp_project_id
+        else:
+            typer.secho(
+                "GCP Project ID not provided via --project option and not found or not configured in project settings.",
+                fg=typer.colors.RED,
+            )
+            typer.secho("Please provide a valid project ID using the --project option or configure it in your .env file.", fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+
+    typer.echo(f"Target GCP Project ID: {effective_project_id}")
+
+    # 1. Enable APIs
+    typer.echo(f"\nAttempting to enable necessary APIs for project {effective_project_id}...")
+    apis_to_enable_str = " ".join(EXPECTED_APIS_TO_ENABLE)
+    enable_cmd = [
+        "gcloud", "services", "enable",
+        *EXPECTED_APIS_TO_ENABLE, # Unpack the list of APIs
+        f"--project={effective_project_id}"
+    ]
+    
+    typer.echo(f"Executing: {' '.join(enable_cmd)}")
+    try:
+        # Using check=False to handle errors manually for better output
+        result = subprocess.run(enable_cmd, capture_output=True, text=True, check=False)
+        if result.returncode == 0:
+            typer.secho(f"Successfully enabled/verified APIs: {apis_to_enable_str}", fg=typer.colors.GREEN)
+            if result.stdout:
+                typer.echo("gcloud output:\n" + result.stdout)
+        else:
+            typer.secho(f"Error enabling APIs. 'gcloud' exited with code {result.returncode}.", fg=typer.colors.RED)
+            if result.stderr:
+                typer.secho("gcloud error output:\n" + result.stderr, fg=typer.colors.RED)
+            if result.stdout: # Sometimes gcloud puts error details in stdout
+                 typer.secho("gcloud output:\n" + result.stdout, fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+    except FileNotFoundError: # Should be caught by shutil.which earlier, but as a safeguard
+        typer.secho("ERROR: 'gcloud' command not found during subprocess execution.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+    except Exception as e:
+        typer.secho(f"An unexpected error occurred while enabling APIs: {e}", fg=typer.colors.RED)
+        raise typer.Exit(code=1) # Corrected indentation
+
+    typer.echo("\nAPI enabling step complete.")
+
+    # 2. Grant IAM role: roles/aiplatform.user to default Compute Engine SA
+    typer.echo(f"\nAttempting to grant 'roles/aiplatform.user' to default Compute SA for project {effective_project_id}...")
+    
+    # Get project number
+    get_proj_num_cmd = [
+        "gcloud", "projects", "describe", effective_project_id,
+        "--format=value(projectNumber)"
+    ]
+    typer.echo(f"Executing: {' '.join(get_proj_num_cmd)}")
+    try:
+        proj_num_result = subprocess.run(get_proj_num_cmd, capture_output=True, text=True, check=True)
+        project_number = proj_num_result.stdout.strip()
+        if not project_number:
+            typer.secho("Error: Could not retrieve project number.", fg=typer.colors.RED)
+            raise typer.Exit(code=1)
+        
+        default_sa_email = f"{project_number}-compute@developer.gserviceaccount.com"
+        typer.echo(f"Default Compute SA identified: {default_sa_email}")
+
+        # Grant roles/aiplatform.user
+        grant_aiplatform_cmd = [
+            "gcloud", "projects", "add-iam-policy-binding", effective_project_id,
+            f"--member=serviceAccount:{default_sa_email}",
+            "--role=roles/aiplatform.user",
+            "--condition=None" # Explicitly set no condition
+        ]
+        typer.echo(f"Executing: {' '.join(grant_aiplatform_cmd)}")
+        # Using check=False to handle errors manually, as add-iam-policy-binding can be noisy
+        # or fail if binding already exists (though it should be idempotent).
+        iam_result = subprocess.run(grant_aiplatform_cmd, capture_output=True, text=True, check=False)
+
+        if iam_result.returncode == 0:
+            typer.secho(f"Successfully granted/verified 'roles/aiplatform.user' to {default_sa_email}.", fg=typer.colors.GREEN)
+            if iam_result.stdout:
+                 typer.echo("gcloud output:\n" + iam_result.stdout)
+        else:
+            # Check if it's because the binding already exists (which is not an error for us)
+            # Common message: "WARNING: Binding already exists for..." or "ERROR: (gcloud.projects.add-iam-policy-binding) User [X] does not have permission to actualize role [Y] on project [Z] or it may not exist."
+            # Or "ERROR: (gcloud.projects.add-iam-policy-binding) PERMISSION_DENIED: User ... does not have resourcemanager.projects.setIamPolicy permission for project ..."
+            # For now, just print warning/error. A more robust solution would parse stderr.
+            if "already exists" in iam_result.stderr.lower() or "already exists" in iam_result.stdout.lower() :
+                 typer.secho(f"Note: IAM binding for 'roles/aiplatform.user' to {default_sa_email} likely already exists.", fg=typer.colors.YELLOW)
+                 if iam_result.stdout: typer.echo("gcloud output:\n" + iam_result.stdout)
+                 if iam_result.stderr: typer.echo("gcloud stderr:\n" + iam_result.stderr)
+            else:
+                typer.secho(f"Error granting 'roles/aiplatform.user'. 'gcloud' exited with code {iam_result.returncode}.", fg=typer.colors.RED)
+                if iam_result.stderr:
+                    typer.secho("gcloud error output:\n" + iam_result.stderr, fg=typer.colors.RED)
+                if iam_result.stdout:
+                     typer.secho("gcloud output:\n" + iam_result.stdout, fg=typer.colors.RED)
+                # We might not want to exit here if other steps can proceed, or make it conditional.
+                # For now, let's treat it as a significant warning/error.
+                # raise typer.Exit(code=1) 
+                typer.secho("Continuing with other setup steps despite potential IAM issue.", fg=typer.colors.YELLOW)
+
+
+    except subprocess.CalledProcessError as e:
+        typer.secho(f"A gcloud command failed: {e.cmd}", fg=typer.colors.RED)
+        if e.stderr:
+            typer.secho("Error output:\n" + e.stderr, fg=typer.colors.RED)
+        if e.stdout:
+             typer.secho("Output:\n" + e.stdout, fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+    except FileNotFoundError:
+        typer.secho("ERROR: 'gcloud' command not found during subprocess execution.", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+    except Exception as e:
+        typer.secho(f"An unexpected error occurred during IAM setup: {e}", fg=typer.colors.RED)
+        raise typer.Exit(code=1)
+
+    typer.echo("\nIAM setup for Vertex AI User role complete (or verified).")
+    typer.echo("Further setup steps (Secret Manager IAM, etc.) are TBD for automation.")
+    typer.echo(f"Please also consult the manual guide: docs/guides/manual_gcp_setup.md")
 
 
 if __name__ == "__main__":

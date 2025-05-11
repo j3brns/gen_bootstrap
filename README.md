@@ -13,7 +13,7 @@ It aims to provide a well-structured project foundation, integrate `google-adk` 
 * **Typer** for the CLI (`gen-bootstrap`).
 * **Google Cloud Platform (GCP)** for deployment (Cloud Run) and services (Vertex AI, Secret Manager, etc.).
 
-## Features (Focused Alpha Phase - Integrated with google-adk)
+## Features (Current Implementation)
 
 * Project structure designed for `google-adk` based applications.
 * Core agent logic defined in `adk/agent.py` using `google.adk.agents.LlmAgent`.
@@ -25,8 +25,13 @@ It aims to provide a well-structured project foundation, integrate `google-adk` 
     * `setup-gcp`: Guidance for manual GCP resource setup.
     * `tools list`: Lists available agent tools found in the `tools/` directory.
     * `tools describe <tool_name>`: Shows detailed information about a specific agent tool.
-    * `prompts list`: Lists available prompt definition files from the local `prompts/` directory (Vertex AI integration TBD).
-    * `prompts get <filename>`: Displays the content of a specific prompt file from the local `prompts/` directory (Vertex AI integration TBD).
+    * `prompts list`: Lists available Prompts in Vertex AI Prompt Registry.
+    * `prompts get <prompt_id>`: Displays details of a specific Prompt from Vertex AI Prompt Registry.
+    * `prompts create --file <path.yaml>`: Creates a new Prompt (or new version) in Vertex AI from a local YAML definition file.
+    * `secrets list`: Lists secrets in Google Secret Manager for the configured project.
+    * `secrets get <secret_id> [--version <version_number|latest>]`: Retrieves and displays the payload of a specific secret version.
+    * `secrets create <secret_id>`: Creates a new (empty) secret in Google Secret Manager.
+    * `secrets add-version <secret_id> (--data <string> | --data-file <path>)`: Adds a new version to an existing secret.
 * FastAPI server (`main.py`) integrated with `google-adk` to serve the agent, including ADK Web UI.
 * Basic structured logging and configuration management (`.env`).
 * Example Gradio test client (`test_client.py`) for interacting with the served agent.
@@ -122,6 +127,18 @@ It aims to provide a well-structured project foundation, integrate `google-adk` 
 * `docs/adrs/`: Architecture Decision Records.
 * `docs/guides/manual_gcp_setup.md`: **Essential** for initial GCP configuration.
 * `docs/tutorials/01-getting-started.md`: Initial setup tutorial.
+
+## Roadmap
+
+The project has made significant progress, with most Alpha phase deliverables complete and substantial advancement into the Beta phase. Some Gamma phase features (like `setup-gcp` automation) are also in progress.
+
+**Next planned features:**
+* Enhanced integration with Cloud Trace
+* CLI command for running tests (`gen-bootstrap test`)
+* Monitoring and evaluation capabilities
+* Memory and state management for stateful agents
+
+For a comprehensive view of our development plan and progress, please see the [Detailed Project Plan](docs/plan/detailed_plan.md).
 
 ## Contributing
 

@@ -1,7 +1,7 @@
 import datetime
 import logging
+from zoneinfo import ZoneInfo  # For timezone support
 
-# from zoneinfo import ZoneInfo # Production systems should use this; requires tzdata
 from google.adk.tools.function_tool import FunctionTool
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ async def get_current_time_async(timezone_str: str = "UTC") -> str:
 
     Args:
         timezone_str: The timezone string (e.g., 'UTC', 'America/New_York',
-                      'Europe/London'). 'UTC' is fully implemented.
+                      'Europe/London'). Supports all IANA timezone database names.
     Returns:
         The current time as an ISO formatted string, or an error message.
     """
@@ -24,11 +24,18 @@ async def get_current_time_async(timezone_str: str = "UTC") -> str:
             now_utc = datetime.datetime.now(datetime.timezone.utc)
             current_time = now_utc.isoformat()
         else:
-            now_utc_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
-            current_time = (
-                f"Timezone '{timezone_str}' support is illustrative. "
-                f"Current UTC time: {now_utc_iso}"
-            )
+            try:
+                # Use ZoneInfo for proper timezone support
+                tz = ZoneInfo(timezone_str)
+                now = datetime.datetime.now(tz)
+                current_time = now.isoformat()
+            except Exception as tz_error:
+                logger.error(f"Error with timezone {timezone_str}: {tz_error}")
+                now_utc_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                current_time = (
+                    f"Error with timezone '{timezone_str}': {tz_error}. "
+                    f"Current UTC time: {now_utc_iso}"
+                )
         logger.info(f"Returning time: {current_time}")
         return current_time
     except Exception as e:

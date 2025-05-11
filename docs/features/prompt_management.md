@@ -3,9 +3,10 @@
 ## Status
 
 Partially Implemented (Beta Phase)
-* `gen-bootstrap prompts list`: Implemented (currently lists local files from `prompts/` directory; Vertex AI integration deferred).
-* `gen-bootstrap prompts get <filename>`: Implemented (currently gets local files from `prompts/` directory; Vertex AI integration deferred).
-* Other `prompts` subcommands (create, update for Vertex AI): Planned.
+* `gen-bootstrap prompts list`: Implemented (interacts with Vertex AI Prompt Registry).
+* `gen-bootstrap prompts get <prompt_id>`: Implemented (interacts with Vertex AI Prompt Registry).
+* `gen-bootstrap prompts create --file <path_to_prompt_file>`: Implemented (interacts with Vertex AI Prompt Registry, handles updates by creating new versions).
+* `gen-bootstrap prompts update`: Functionality covered by `create` (versioning).
 
 ## Description
 
@@ -38,11 +39,10 @@ This feature provides a centralized and managed way to define, store, version, a
 
 ## Acceptance Criteria
 
-*   Users can create a new Prompt Class in Vertex AI from a local file using the CLI. (Planned)
-*   Users can list existing prompt definition files from the local `prompts/` directory using the CLI. (Implemented)
-*   Users can retrieve the content of a specific prompt file from the local `prompts/` directory using the CLI. (Implemented)
-*   (Vertex AI integration for `list` and `get` is deferred).
-*   Users can update an existing Prompt Class using the CLI. (Planned)
+*   Users can create a new Prompt (or new version) in Vertex AI from a local YAML definition file using the CLI. (Implemented)
+*   Users can list existing Prompts in Vertex AI Prompt Registry using the CLI. (Implemented)
+*   Users can retrieve the content and details of a specific Prompt from Vertex AI Prompt Registry using the CLI. (Implemented)
+*   Users can update an existing Prompt by submitting a modified definition file with the same `prompt_name` using the `create` command, which results in a new version. (Covered by `create`)
 *   An ADK agent can successfully fetch a specified Prompt Class version at runtime using the `utils` functions.
 *   Prompt fetching logic handles potential errors (e.g., prompt not found).
 *   The application successfully applies safety settings defined in Vertex AI Prompt Classes when interacting with models.

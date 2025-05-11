@@ -1,0 +1,29 @@
+[run]
+source = .
+omit =
+    # Omit virtual environment directories
+    .venv/*
+    venv/*
+    env/*
+    # Omit test files themselves
+    tests/*
+    # Omit notebooks
+    notebooks/*
+    # Omit third-party packages
+    */site-packages/*
+
+[report]
+exclude_lines =
+    # Skip any pragma comments
+    pragma: no cover
+    # Skip defensive assertion code
+    raise NotImplementedError
+    # Skip abstract methods
+    @abstractmethod
+    # Skip type checking blocks
+    if TYPE_CHECKING:
+    # Skip main block
+    if __name__ == .__main__.:
+
+[html]
+directory = .coverage/html

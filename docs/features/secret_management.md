@@ -2,7 +2,11 @@
 
 ## Status
 
-Planned (Beta Phase)
+Partially Implemented (Beta Phase)
+* `gen-bootstrap secrets list`: Implemented.
+* `gen-bootstrap secrets get <secret_id> [--version <version>]`: Implemented.
+* `gen-bootstrap secrets create <secret_id>`: Implemented.
+* `gen-bootstrap secrets add-version <secret_id> (--data <string> | --data-file <path>)`: Implemented.
 
 ## Description
 
@@ -35,10 +39,10 @@ This feature provides a secure way to store and retrieve sensitive information, 
 
 ## Acceptance Criteria
 
-*   Users can create a new secret in Secret Manager using the CLI.
-*   Users can add a new version to an existing secret from a file using the CLI.
-*   Users can list secrets using the CLI.
-*   Users can retrieve the content of a specific secret version using the CLI.
+*   Users can create a new (empty) secret in Secret Manager using the CLI. (Implemented)
+*   Users can add a new version to an existing secret using either a direct string or from a file via the CLI. (Implemented)
+*   Users can list secrets in Google Secret Manager for the configured project using the CLI. (Implemented)
+*   Users can retrieve the content of a specific secret version using the CLI. (Implemented)
 *   An ADK agent or tool can successfully retrieve a secret value at runtime using the `utils` functions.
 *   Secret retrieval logic handles potential errors (e.g., secret not found, permission denied).
 *   Documentation clearly explains the secure workflow for managing and accessing secrets.
