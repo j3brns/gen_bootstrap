@@ -31,21 +31,21 @@ The following sections include status markers ([DONE], [IN PROGRESS], [TODO]) to
 The project will follow a modular structure to separate concerns and facilitate development.
 
 ```mermaid
-graph TD
+graph LR
     A[Project Root] --> B[adk/]
     A --> C[tools/]
     A --> D[cli/]
     A --> E[config/]
     A --> F[utils/]
     A --> G[deployment/]
-    A --> H[prompts/ (Optional)]
-    A --> I[evaluation/ (Optional)]
+    A --> H[prompts/ Optional]
+    A --> I[evaluation/ Optional]
     A --> J[tests/]
     A --> K[notebooks/]
     A --> L[README.md]
     A --> M[pyproject.toml]
     A --> N[poetry.lock]
-    A --> O[main.py (or equivalent)]
+    A --> O[main.py or equivalent]
     A --> P[.pre-commit-config.yaml]
     A --> Q[docs/]
     Q --> Q1[plan/]
