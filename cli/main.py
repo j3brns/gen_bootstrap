@@ -266,15 +266,53 @@ def test(
     verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Enable verbose output.")] = False,
     junit: Annotated[bool, typer.Option("--junit", help="Generate JUnit XML report.")] = False,
     output_dir: Annotated[str, typer.Option("--output-dir", help="Directory for coverage reports.")] = ".coverage",
+    clean: Annotated[bool, typer.Option("--clean", help="Clean coverage data before running tests.")] = False,
 ):
     """
     Run tests using pytest with optional coverage reporting.
     """
     typer.echo("Running tests...")
     
+    # Create coverage data directory
+    coverage_data_dir = ".coverage_data"
+    if coverage:
+        try:
+            os.makedirs(coverage_data_dir, exist_ok=True)
+            
+            # Clean coverage data if requested
+            if clean:
+                typer.echo("Cleaning coverage data...")
+                coverage_data_file = os.path.join(coverage_data_dir, ".coverage")
+                if os.path.exists(coverage_data_file):
+                    try:
+                        os.remove(coverage_data_file)
+                        typer.echo("Coverage data file removed.")
+                    except PermissionError:
+                        typer.secho(
+                            f"WARNING: Could not remove coverage data file: Permission denied. "
+                            f"Try closing any processes that might be using it.",
+                            fg=typer.colors.YELLOW,
+                        )
+                    except Exception as e:
+                        typer.secho(
+                            f"WARNING: Could not remove coverage data file: {e}",
+                            fg=typer.colors.YELLOW,
+                        )
+        except Exception as e:
+            typer.secho(
+                f"WARNING: Could not create coverage data directory: {e}",
+                fg=typer.colors.YELLOW,
+            )
+    
     # Ensure the output directory exists if coverage is enabled
     if coverage and (html or junit):
-        os.makedirs(output_dir, exist_ok=True)
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except Exception as e:
+            typer.secho(
+                f"WARNING: Could not create output directory: {e}",
+                fg=typer.colors.YELLOW,
+            )
     
     # Build the pytest command
     pytest_cmd = ["poetry", "run", "pytest"]
@@ -303,7 +341,13 @@ def test(
     # Execute the command
     typer.echo(f"Executing: {' '.join(pytest_cmd)}")
     try:
-        result = subprocess.run(pytest_cmd, check=False)
+        result = subprocess.run(pytest_cmd, check=False, capture_output=True, text=True)
+        
+        # Print stdout and stderr
+        if result.stdout:
+            typer.echo(result.stdout)
+        if result.stderr:
+            typer.secho(result.stderr, fg=typer.colors.YELLOW)
         
         if result.returncode == 0:
             typer.secho("All tests passed successfully!", fg=typer.colors.GREEN)
@@ -314,6 +358,14 @@ def test(
                 
             return result.returncode
         else:
+            # Check for permission errors
+            if "PermissionError" in result.stderr and ".coverage" in result.stderr:
+                typer.secho(
+                    "Permission error accessing coverage data file. "
+                    "Try running with --clean flag or manually delete the .coverage_data directory.",
+                    fg=typer.colors.RED,
+                )
+            
             typer.secho(f"Tests failed with return code: {result.returncode}", fg=typer.colors.RED)
             return result.returncode
             

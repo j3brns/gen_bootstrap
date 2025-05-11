@@ -1,5 +1,6 @@
 [run]
 source = .
+data_file = .coverage_data/.coverage
 omit =
     # Omit virtual environment directories
     .venv/*
