@@ -1,0 +1,22 @@
+# Files and directories to be ignored by Cline when processing the codebase.
+# This file uses the same pattern format as .gitignore.
+
+# Example exclusions:
+# Exclude specific large data files
+# data/*.csv
+
+# Exclude documentation directories if not needed for code context
+# docs/
+
+# Exclude example files or scripts
+# examples/
+
+# Exclude specific test files or directories if focusing on production code
+# tests/
+
+# Exclude files with specific extensions
+# *.log
+# *.tmp
+
+# Exclude the .clineignore file itself
+.clineignore

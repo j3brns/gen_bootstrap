@@ -21,9 +21,9 @@ def mock_datetime_now(mocker):
             return FIXED_UTC_NOW
         return FIXED_UTC_NOW.astimezone(tz)
 
-    return mocker.patch(
-        "tools.example_tool.datetime.datetime.now", side_effect=mocked_now
-    )
+    mock_dt = mocker.patch("tools.example_tool.datetime")
+    mock_dt.datetime.now.side_effect = mocked_now
+    return mock_dt.datetime.now
 
 
 @pytest.mark.asyncio
@@ -52,10 +52,16 @@ async def test_get_current_time_valid_timezone_new_york(mock_datetime_now):
     """Test with a valid IANA timezone 'America/New_York'."""
     tz_str = "America/New_York"
     new_york_tz = ZoneInfo(tz_str)
-    expected_time_in_new_york = FIXED_UTC_NOW.astimezone(new_york_tz)
-    expected_iso_format = expected_time_in_new_york.isoformat()
+    expected_time_in_new_york = FIXED_UTC_NOW.astimezone(
+        new_york_tz
+    )
+    expected_iso_format = (
+        expected_time_in_new_york.isoformat()
+    )
 
-    result = await get_current_time_async(tz_str)
+    result = await get_current_time_async(
+        tz_str
+    )
     assert result == expected_iso_format
 
 
@@ -99,10 +105,8 @@ async def test_get_current_time_invalid_timezone(mocker):  # Signature is correc
             "datetime.now called with unexpected tz in invalid_timezone test"
         )
 
-    mocker.patch(
-        "tools.example_tool.datetime.datetime.now",
-        side_effect=selective_datetime_now_mock,
-    )
+    mock_dt = mocker.patch("tools.example_tool.datetime")
+    mock_dt.datetime.now.side_effect = selective_datetime_now_mock
 
     result = await get_current_time_async(invalid_tz_str)
 

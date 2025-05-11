@@ -1,6 +1,6 @@
 # Manual GCP Resource Setup Guide
 
-This guide outlines the essential Google Cloud Platform (GCP) resources and configurations required to run and deploy the "sparc" / "gen-bootstrap" Generative AI ADK Scaffold. For the Alpha and early Beta phases of this project, these steps should be performed manually.
+This guide outlines the essential Google Cloud Platform (GCP) resources and configurations required to run and deploy the "gen-bootstrap" Generative AI ADK Scaffold. For the Alpha and early Beta phases of this project, these steps should be performed manually.
 
 The `poetry run gen-bootstrap setup-gcp` command in the CLI will also direct you to this guide.
 

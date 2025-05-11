@@ -121,6 +121,8 @@ It aims to provide a well-structured project foundation, integrate `google-adk` 
 * `pyproject.toml`: Poetry project configuration and dependencies.
 * `Procfile`: (To be created by user or `deploy` command) Defines how Cloud Run starts the app.
 
+The deployment process primarily leverages Cloud Build with Buildpacks (as per ADR 0027), which uses the `Procfile` to determine the application's start command. A `Dockerfile` is also included in the `deployment/` directory for alternative containerisation needs.
+
 ## Documentation
 
 * `docs/plan/`: Project vision and phased plan.

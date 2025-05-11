@@ -1,7 +1,9 @@
 import logging
 
 from google.adk.agents.llm_agent import LlmAgent
-from google.adk.tools import GoogleSearch  # Example built-in ADK tool
+from google.adk.tools import (
+    google_search  # Example built-in ADK tool (function)
+)
 
 from config.settings import settings
 from tools.example_tool import get_current_time_tool  # Your custom tool
@@ -18,20 +20,19 @@ root_agent = LlmAgent(
         "with their queries by providing information and leveraging the tools "
         "available to you. Available tools are:\n"
         "- get_current_time_tool: Use this to find the current time for any timezone.\n"
-        "- GoogleSearch: Use this for general knowledge questions or finding "
+        "- google_search: Use this for general knowledge questions or finding "
         "current information online.\n"
         "Be polite, clear, and make sure to tell the user which tool you are "
         "using if you decide to use one."
     ),
     tools=[
         get_current_time_tool,
-        GoogleSearch,
+        google_search,  # Use the imported function directly
     ],
-    verbose=True,
 )
 
 logger.info(
     f"ADK Agent '{root_agent.name}' initialized. "
-    f"Model: '{root_agent.model_config.model}'. "
-    f"Tools: {[tool.name for tool in root_agent.tools_by_name.values()]}"
+    f"Model config keys: '{root_agent.model_config.keys()}'. "
+    f"Tools: {[tool.name for tool in root_agent.tools]}"
 )
