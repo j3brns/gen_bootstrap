@@ -1,8 +1,8 @@
-# GCP Generative AI Scaffold (gen-bootstrap)
+# EXPERIMENTAL !!  GCP Generative AI Scaffold (gen-bootstrap)
 
 This project provides a scaffold and command-line interface (CLI) named `gen-bootstrap` (invoked via `poetry run gen-bootstrap`) to accelerate the development of generative AI projects using the **official Google Agent Development Kit (google-adk)** on Google Cloud Platform (GCP).
 
-It aims to provide a well-structured project foundation, integrate `google-adk` for agent logic, and automate common tasks throughout the development lifecycle, from local development to deployment on Cloud Run.
+It aims to provide a structured project foundation, integrate `google-adk` for agent logic, and automate common tasks throughout the development lifecycle, from local development to deployment on Cloud Run.
 
 ## Core Technologies
 
@@ -151,7 +151,7 @@ Please see the `CONTRIBUTING.md` file for guidelines.
 
 ## License
 
-[Specify your license here]
+[Experimental]
 
 ---
 
