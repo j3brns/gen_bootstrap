@@ -31,7 +31,7 @@ The following sections include status markers ([DONE], [IN PROGRESS], [TODO]) to
 The project will follow a modular structure to separate concerns and facilitate development.
 
 ```mermaid
-graph TD
+graph LR
     A[Project Root] --> B[adk/]
     A --> C[tools/]
     A --> D[cli/]
